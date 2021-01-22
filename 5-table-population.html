@@ -76,16 +76,16 @@ Documents:
                 let last_name = row.name.split(' ')[1]
                 return `<tr><td>${first_name}</td><td>${last_name}</td><td>${row.date_of_birth}</td></tr>`
             }
-            
+
             populate() {
                 let self = this
                 fetch('https://s3.amazonaws.com/technical-test/scientists.txt')
                     .then((response) => response.json())
                     .then(data => {
                         data.sort(this.sortArrayByBirthdate)
+
                         let template = ``
                         data.forEach(item => template += this.formatRow(item))
-
                         document.querySelector('#data tbody').innerHTML = template
                     })
             }
