@@ -54,43 +54,45 @@ Documents:
     </table>
 
     <script>
-        const sortArrayByBirthdate = (a, b) => {
-            let _a = a.date_of_birth
-            let _b = b.date_of_birth
-            
-            // check types to see if they are strings and then convert them to proper integers
-            if (typeof _b === 'string') {
-                _b = Number(_b.split(' ')[0]) * -1
+        class SortAndPopulate {
+            sortArrayByBirthdate(a, b) {
+                let _a = a.date_of_birth
+                let _b = b.date_of_birth
+                
+                // check types to see if they are strings and then convert them to proper integers
+                if (typeof _b === 'string') {
+                    _b = Number(_b.split(' ')[0]) * -1
+                }
+
+                if (typeof _a === 'string') {
+                    _a = Number(_a.split(' ')[0]) * -1
+                }
+                
+                return (_a < _b) ? 1 : -1
             }
 
-            if (typeof _a === 'string') {
-                _a = Number(_a.split(' ')[0]) * -1
+            formatRow(row) {
+                let first_name = row.name.split(' ')[0]
+                let last_name = row.name.split(' ')[1]
+                return `<tr><td>${first_name}</td><td>${last_name}</td><td>${row.date_of_birth}</td></tr>`
             }
             
-            return (_a < _b) ? 1 : -1
+            populate() {
+                let self = this
+                fetch('https://s3.amazonaws.com/technical-test/scientists.txt')
+                    .then((response) => response.json())
+                    .then(data => {
+                        data.sort(this.sortArrayByBirthdate)
+                        let template = ``
+                        data.forEach(item => template += this.formatRow(item))
+
+                        document.querySelector('#data tbody').innerHTML = template
+                    })
+            }
         }
 
-        function formatRow(row) {
-            let first_name = row.name.split(' ')[0]
-            let last_name = row.name.split(' ')[1]
-            return `<tr><td>${first_name}</td><td>${last_name}</td><td>${row.date_of_birth}</td></tr>`
-        }
-
-        function populateTable(data)
-        {
-            let template = ``
-            data.forEach(item => template += formatRow(item))
-
-            document.querySelector('#data tbody').innerHTML = template
-        }
-
-        let json_data = fetch('https://s3.amazonaws.com/technical-test/scientists.txt')
-            .then((response) => response.json())
-            .then(data => {
-                data.sort(sortArrayByBirthdate)
-                populateTable(data)
-            })
-
+        const data = new SortAndPopulate
+        data.populate()
     </script>
 </body>
 </html>
